@@ -2,9 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -41,7 +39,7 @@ public class FilmController {
 
         if (!films.containsKey(newFilm.getId())) {
             log.warn("Фильм с id {} не найден", newFilm.getId());
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Фильм не найден");
+            throw new ValidationException("Фильм не найден");
         }
         validateFilm(newFilm);
         films.put(newFilm.getId(), newFilm);
@@ -61,7 +59,7 @@ public class FilmController {
         if (film == null) {
             return "Объект не может быть null";
         }
-        if (film.getTitle() == null || film.getTitle().isBlank()) {
+        if (film.getName() == null || film.getName().isBlank()) {
             return "Название фильма обязательно";
         }
         if (film.getDescription() == null) {
@@ -70,16 +68,16 @@ public class FilmController {
         if (film.getDescription().length() > 200) {
             return "Превышено максимальное количество символов в описании";
         }
-        if (film.getRelease() == null) {
+        if (film.getReleaseDate() == null) {
             return "Не указана дата релиза";
         }
-        if (film.getRelease().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             return "Дата релиза не должна быть раньше 28.12.1895";
         }
-        if (film.getDuration() == null) {
+        if (film.getDuration() == 0) {
             return "Не указана продолжительность фильма";
         }
-        if (film.getDuration().toMinutes() <= 0) {
+        if (film.getDuration() <= 0) {
             return "Продолжительность фильма должна быть положительной";
         }
         return null;

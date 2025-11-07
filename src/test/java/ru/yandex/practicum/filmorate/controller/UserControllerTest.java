@@ -37,9 +37,7 @@ class UserControllerTest {
     @Test
     public void create_addUserObject_ifThereIsASymbol_At() {
         user.setEmail("captain-kam.yandex.ru");
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            controller.create(user);
-        });
+        ValidationException exception = assertThrows(ValidationException.class, () -> controller.create(user));
 
         assertEquals("Почта должна содержать символ \"@\"", exception.getMessage());
     }
@@ -47,9 +45,7 @@ class UserControllerTest {
     @Test
     public void create_addUserObject_noSpacesInTheLogin() {
         user.setLogin("captain Kam");
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            controller.create(user);
-        });
+        ValidationException exception = assertThrows(ValidationException.class, () -> controller.create(user));
 
         assertEquals("Логин не может содержать пробелы", exception.getMessage());
     }
@@ -57,9 +53,7 @@ class UserControllerTest {
     @Test
     public void create_addUserObject_birthdayInTheFuture() {
         user.setBirthday(LocalDate.of(2030, 1, 14));
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            controller.create(user);
-        });
+        ValidationException exception = assertThrows(ValidationException.class, () -> controller.create(user));
 
         assertEquals("Дата рождения не может быть указана в будущем", exception.getMessage());
     }
