@@ -12,23 +12,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class UserControllerTest {
-    private UserController controller;
-    private User user;
+    private UserController userController;
 
     @BeforeEach
     public void beforeEach() {
-        controller = new UserController();
-        user = new User();
-        user.setEmail("captain-kam@yandex.ru");
-        user.setLogin("captain-Kam");
-        user.setName("Камиль");
-        user.setBirthday(LocalDate.of(1993, 1, 14));
+        userController = new UserController();
     }
 
     @Test
     public void getAllUsers_getListOfUsers() {
-        controller.create(user);
-        List<User> users = controller.getAllUsers();
+        User user = User.builder()
+                .email("captain-kam@yandex.ru")
+                .login("captain-Kam")
+                .name("Камиль")
+                .birthday(LocalDate.of(1993, 1, 14))
+                .build();
+
+        userController.create(user);
+        List<User> users = userController.getAllUsers();
 
         assertEquals(1, users.size());
         assertEquals("captain-Kam", users.getFirst().getLogin());
@@ -36,36 +37,64 @@ class UserControllerTest {
 
     @Test
     public void create_addUserObject_ifThereIsASymbol_At() {
+        User user = User.builder()
+                .email("captain-kam@yandex.ru")
+                .login("captain-Kam")
+                .name("Камиль")
+                .birthday(LocalDate.of(1993, 1, 14))
+                .build();
+
         user.setEmail("captain-kam.yandex.ru");
-        ValidationException exception = assertThrows(ValidationException.class, () -> controller.create(user));
+        ValidationException exception = assertThrows(ValidationException.class, () -> userController.create(user));
 
         assertEquals("Почта должна содержать символ \"@\"", exception.getMessage());
     }
 
     @Test
     public void create_addUserObject_noSpacesInTheLogin() {
+        User user = User.builder()
+                .email("captain-kam@yandex.ru")
+                .login("captain-Kam")
+                .name("Камиль")
+                .birthday(LocalDate.of(1993, 1, 14))
+                .build();
+
         user.setLogin("captain Kam");
-        ValidationException exception = assertThrows(ValidationException.class, () -> controller.create(user));
+        ValidationException exception = assertThrows(ValidationException.class, () -> userController.create(user));
 
         assertEquals("Логин не может содержать пробелы", exception.getMessage());
     }
 
     @Test
     public void create_addUserObject_birthdayInTheFuture() {
+        User user = User.builder()
+                .email("captain-kam@yandex.ru")
+                .login("captain-Kam")
+                .name("Камиль")
+                .birthday(LocalDate.of(1993, 1, 14))
+                .build();
+
         user.setBirthday(LocalDate.of(2030, 1, 14));
-        ValidationException exception = assertThrows(ValidationException.class, () -> controller.create(user));
+        ValidationException exception = assertThrows(ValidationException.class, () -> userController.create(user));
 
         assertEquals("Дата рождения не может быть указана в будущем", exception.getMessage());
     }
 
     @Test
     public void create_addUserObject_useLoginWhenNameIsMissing() {
+        User user = User.builder()
+                .email("captain-kam@yandex.ru")
+                .login("captain-Kam")
+                .name("Камиль")
+                .birthday(LocalDate.of(1993, 1, 14))
+                .build();
+
         user.setName(" ");
-        controller.create(user);
+        userController.create(user);
         assertEquals(user.getLogin(), user.getName());
 
         user.setName(null);
-        controller.create(user);
+        userController.create(user);
         assertEquals(user.getLogin(), user.getName());
     }
 }
