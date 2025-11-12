@@ -32,6 +32,7 @@ public class UserController {
         }
         user.setId(getNextId());
         users.put(user.getId(), user);
+
         return user;
     }
 
@@ -44,6 +45,9 @@ public class UserController {
             throw new ValidationException("Пользователь не найден");
         }
         validateUser(newUser);
+        if (newUser.getName() == null || newUser.getName().isBlank()) {
+            newUser.setName(newUser.getLogin());
+        }
         users.put(newUser.getId(), newUser);
 
         return newUser;
@@ -87,6 +91,7 @@ public class UserController {
                 .mapToLong(id -> id)
                 .max()
                 .orElse(0);
+
         return ++currentMaxId;
     }
 }

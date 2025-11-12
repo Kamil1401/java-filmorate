@@ -29,6 +29,7 @@ public class FilmController {
         validateFilm(film);
         film.setId(getNextId());
         films.put(film.getId(), film);
+
         return film;
     }
 
@@ -87,6 +88,7 @@ public class FilmController {
                 .mapToLong(id -> id)
                 .max()
                 .orElse(0);
+
         return ++currentMaxId;
     }
 }
