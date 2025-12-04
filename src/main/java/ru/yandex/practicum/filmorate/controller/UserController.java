@@ -2,96 +2,66 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
+    private final UserStorage userStorage;
+    private final UserService userService;
 
-    private final Map<Long, User> users = new HashMap<>();
+    public UserController(UserStorage userStorage, UserService userService) {
+        this.userStorage = userStorage;
+        this.userService = userService;
+    }
 
     @GetMapping
     public List<User> getAllUsers() {
-        return new ArrayList<>(users.values());
+        return userStorage.getAllUsers();
+    }
+
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable("id") Long userId) {
+        return userStorage.getUser(userId);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getListOfMutualFriends(@PathVariable("id") Long userId,
+                                              @PathVariable("otherId") Long anotherUserId) {
+        return userService.getMutualFriends(userId, anotherUserId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getFriends(@PathVariable("id") Long userId) {
+        User user = userStorage.getUser(userId);
+        return user.getFriends().stream()
+                .map(id -> userStorage.getUser(id))
+                .collect(Collectors.toList());
     }
 
     @PostMapping
     public User create(@RequestBody User user) {
-        log.info("Получен запрос на создание пользователя");
-        validateUser(user);
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        user.setId(getNextId());
-        users.put(user.getId(), user);
-
-        return user;
+        return userStorage.create(user);
     }
 
     @PutMapping
-    public User update(@RequestBody User newUser) {
-        log.info("Получен запрос на обновление данных пользователя \"{}\"", newUser.getName());
-
-        if (!users.containsKey(newUser.getId())) {
-            log.warn("Пользователь с id {} не найден", newUser.getId());
-            throw new ValidationException("Пользователь не найден");
-        }
-        validateUser(newUser);
-        if (newUser.getName() == null || newUser.getName().isBlank()) {
-            newUser.setName(newUser.getLogin());
-        }
-        users.put(newUser.getId(), newUser);
-
-        return newUser;
+    public User update(@RequestBody User user) {
+        return userStorage.update(user);
     }
 
-    private void validateUser(User user) {
-        String error = findValidationViolations(user);
-        if (error != null) {
-            log.error("Ошибка валидации: {}", error);
-            throw new ValidationException(error);
-        }
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable("id") Long userId, @PathVariable Long friendId) {
+        userService.addFriend(userId, friendId);
     }
 
-    private String findValidationViolations(User user) {
-        if (user == null) {
-            return "Объект не может быть null";
-        }
-        if (user.getEmail() == null || user.getEmail().isBlank()) {
-            return "Не передана почта";
-        }
-        if (!user.getEmail().contains("@")) {
-            return "Почта должна содержать символ \"@\"";
-        }
-        if (user.getLogin() == null) {
-            return "Не указан логин";
-        }
-        if (user.getLogin().contains(" ")) {
-            return "Логин не может содержать пробелы";
-        }
-        if (user.getBirthday() == null) {
-            return "Не указана дата рождения";
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            return "Дата рождения не может быть указана в будущем";
-        }
-        return null;
-    }
-
-    private long getNextId() {
-        long currentMaxId = users.keySet().stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-
-        return ++currentMaxId;
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFriend(@PathVariable("id") Long userId, @PathVariable Long friendId) {
+        userService.deleteFriend(userId, friendId);
     }
 }

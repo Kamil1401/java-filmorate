@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Set;
 
 @Data
 @Builder
@@ -13,4 +15,17 @@ public class User {
     private String login;
     private String name;
     private LocalDate birthday;
+    private Set<Long> friends;
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        User otherUser = (User) object;
+        return Objects.equals(id, otherUser.id);
+    }
 }
