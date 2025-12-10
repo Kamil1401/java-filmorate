@@ -2,14 +2,12 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -33,6 +31,9 @@ public class InMemoryUserStorage implements UserStorage {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
+        if (user.getFriends() == null) {
+            user.setFriends(new HashSet<>());
+        }
         user.setId(getNextId());
         users.put(user.getId(), user);
 
@@ -41,11 +42,11 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User newUser) {
-        log.info("Получен запрос на обновление данных пользователя \"{}\"", newUser.getName());
+        log.info("Получен запрос на обновление данных пользователя");
 
         if (!users.containsKey(newUser.getId())) {
-            log.warn("Пользователь с id {} не найден", newUser.getId());
-            throw new ValidationException("Пользователь не найден");
+            log.warn("Такого пользователя не обнаружено");
+            throw new NotFoundException("Пользователь не найден");
         }
         validateUser(newUser);
         if (newUser.getName() == null || newUser.getName().isBlank()) {

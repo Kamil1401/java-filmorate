@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-    private UserStorage userStorage;
+    private final UserStorage userStorage;
 
     public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
@@ -53,9 +53,6 @@ public class UserService {
 
         if (user1 == null || user2 == null) {
             throw new NotFoundException("Пользователь не найден");
-        }
-        if (!user1.getFriends().contains(user2.getId()) && !user2.getFriends().contains(user1.getId())) {
-            throw new FriendAlreadyExistsException("Пользователи не являются друзьями");
         }
         user1.getFriends().remove(user2.getId());
         user2.getFriends().remove(user1.getId());

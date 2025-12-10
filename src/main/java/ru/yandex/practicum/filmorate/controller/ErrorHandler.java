@@ -24,14 +24,14 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleFriendAlreadyExistsException(final FriendAlreadyExistsException e) {
-        return new ErrorResponse("ошибка добавления в друзья", e.getMessage());
+        return new ErrorResponse("Ошибка добавления в друзья", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public String handleThrowable(final Throwable e) {
-        return e.getStackTrace().toString();
+    public ErrorResponse handleExceptions(final Throwable e) {
+        return new ErrorResponse("Непредвиденная ошибка", e.getMessage());
     }
 }

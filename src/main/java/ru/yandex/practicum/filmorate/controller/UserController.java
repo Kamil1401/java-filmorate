@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -39,9 +41,15 @@ public class UserController {
 
     @GetMapping("/{id}/friends")
     public List<User> getFriends(@PathVariable("id") Long userId) {
+        if (userId == null) {
+            throw new ValidationException("ID пользователя не передан");
+        }
         User user = userStorage.getUser(userId);
+        if (user == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
         return user.getFriends().stream()
-                .map(id -> userStorage.getUser(id))
+                .map(userStorage::getUser)
                 .collect(Collectors.toList());
     }
 

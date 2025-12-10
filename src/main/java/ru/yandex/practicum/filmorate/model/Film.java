@@ -28,4 +28,9 @@ public class Film {
         Film otherUser = (Film) object;
         return Objects.equals(id, otherUser.id);
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
