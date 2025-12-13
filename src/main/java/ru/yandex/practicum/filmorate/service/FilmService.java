@@ -1,38 +1,64 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.Comparator;
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
+    private final UserService userService;
 
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
+
+    public List<Film> getListOfAllFilms() {
+        return filmStorage.getAllFilms();
+    }
+
+    public Film getFilmOrThrow(Long filmId) {
+        return filmStorage.findById(filmId)
+                .orElseThrow(() -> new NotFoundException("Фильм не найден"));
+    }
+
+    public List<Film> getPopularFilms(int count) {
+        return filmStorage.getPopularFilms(count);
+    }
+
+    public Film create(Film film) {
+        log.info("Получен запрос на создание фильма");
+        if (film.getLikes() == null) {
+            film.setLikes(new HashSet<>());
+        }
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            throw new ValidationException("Дата релиза не должна быть раньше 28.12.1895");
+        }
+        return filmStorage.save(film);
+    }
+
+    public Film update(Film newFilm) {
+        log.info("Получен запрос на обновление данных фильма");
+        getFilmOrThrow(newFilm.getId());
+        if (newFilm.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            throw new ValidationException("Дата релиза не должна быть раньше 28.12.1895");
+        }
+        return newFilm;
     }
 
     public void addLike(Long filmId, Long userId) {
         if (filmId == null || userId == null) {
-            throw new ValidationException("ID фильма и пользователя должны быть переданы");
+            throw new ValidationException("ID фильма или пользователя не передан");
         }
-        Film film = filmStorage.getFilm(filmId);
-
-        if (film == null) {
-            throw new NotFoundException("Фильм не найден");
-        }
-        if (userStorage.getUser(userId) == null) {
-            throw new NotFoundException("Пользователь не найден");
-        }
+        Film film = getFilmOrThrow(filmId);
+        userService.getUserOrThrow(userId);
         if (film.getLikes().contains(userId)) {
             throw new ValidationException("Вы уже поставили лайк фильму " + '\"' + film.getName() + '\"');
         }
@@ -41,30 +67,11 @@ public class FilmService {
 
     public void deleteLike(Long filmId, Long userId) {
         if (filmId == null || userId == null) {
-            throw new ValidationException("ID фильма и пользователя должны быть переданы");
+            throw new ValidationException("ID фильма и/или пользователя должны быть переданы");
         }
-        Film film = filmStorage.getFilm(filmId);
+        Film film = getFilmOrThrow(filmId);
+        userService.getUserOrThrow(userId);
 
-        if (film == null) {
-            throw new NotFoundException("Фильм не найден");
-        }
-        if (userStorage.getUser(userId) == null) {
-            throw new NotFoundException("Пользователь не найден");
-        }
         film.getLikes().remove(userId);
-    }
-
-    public List<Film> getPopularFilms(int count) {
-        return filmStorage.getAllFilms().stream()
-                .sorted(Comparator.comparing(this::getLikesCount).reversed())
-                .limit(count)
-                .collect(Collectors.toList());
-    }
-
-    public int getLikesCount(Film film) {
-        if (film == null) {
-            throw new ValidationException("Фильм не передан");
-        }
-        return film.getLikes() == null ? 0 : film.getLikes().size();
     }
 }

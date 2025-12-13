@@ -1,12 +1,13 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,62 +15,55 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/users")
 @Slf4j
+@RequiredArgsConstructor
 public class UserController {
-    private final UserStorage userStorage;
     private final UserService userService;
-
-    public UserController(UserStorage userStorage, UserService userService) {
-        this.userStorage = userStorage;
-        this.userService = userService;
-    }
 
     @GetMapping
     public List<User> getAllUsers() {
-        return userStorage.getAllUsers();
+        return userService.getListOfAllUsers();
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable("id") Long userId) {
-        return userStorage.getUser(userId);
+    public User getUserById(@PathVariable("id") @Positive Long userId) {
+        return userService.getUserOrThrow(userId);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getListOfMutualFriends(@PathVariable("id") Long userId,
-                                              @PathVariable("otherId") Long anotherUserId) {
-        return userService.getMutualFriends(userId, anotherUserId);
+    public List<User> getListOfMutualFriends(@PathVariable("id") @Positive Long userId,
+                                             @PathVariable @Positive Long otherId) {
+        return userService.getMutualFriends(userId, otherId);
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getFriends(@PathVariable("id") Long userId) {
+    public List<User> getFriends(@PathVariable("id") @Positive Long userId) {
         if (userId == null) {
             throw new ValidationException("ID пользователя не передан");
         }
-        User user = userStorage.getUser(userId);
-        if (user == null) {
-            throw new NotFoundException("Пользователь не найден");
-        }
+        User user = userService.getUserOrThrow(userId);
+
         return user.getFriends().stream()
-                .map(userStorage::getUser)
+                .map(userService::getUserOrThrow)
                 .collect(Collectors.toList());
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
-        return userStorage.create(user);
+    public User create(@Valid @RequestBody User user) {
+        return userService.create(user);
     }
 
     @PutMapping
-    public User update(@RequestBody User user) {
-        return userStorage.update(user);
+    public User update(@Valid @RequestBody User user) {
+        return userService.update(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public void addFriend(@PathVariable("id") Long userId, @PathVariable Long friendId) {
+    public void addFriend(@PathVariable("id") @Positive Long userId, @PathVariable @Positive Long friendId) {
         userService.addFriend(userId, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public void deleteFriend(@PathVariable("id") Long userId, @PathVariable Long friendId) {
+    public void deleteFriend(@PathVariable("id") @Positive Long userId, @PathVariable @Positive Long friendId) {
         userService.deleteFriend(userId, friendId);
     }
 }

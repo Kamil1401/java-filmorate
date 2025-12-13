@@ -2,11 +2,8 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
 import java.util.*;
 
 @Component
@@ -20,20 +17,12 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUser(Long userId) {
-        return users.get(userId);
+    public Optional<User> findById(Long userId) {
+        return Optional.ofNullable(users.get(userId));
     }
 
     @Override
-    public User create(User user) {
-        log.info("Получен запрос на создание пользователя");
-        validateUser(user);
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        if (user.getFriends() == null) {
-            user.setFriends(new HashSet<>());
-        }
+    public User save(User user) {
         user.setId(getNextId());
         users.put(user.getId(), user);
 
@@ -42,52 +31,8 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User newUser) {
-        log.info("Получен запрос на обновление данных пользователя");
-
-        if (!users.containsKey(newUser.getId())) {
-            log.warn("Такого пользователя не обнаружено");
-            throw new NotFoundException("Пользователь не найден");
-        }
-        validateUser(newUser);
-        if (newUser.getName() == null || newUser.getName().isBlank()) {
-            newUser.setName(newUser.getLogin());
-        }
         users.put(newUser.getId(), newUser);
-
         return newUser;
-    }
-
-    private void validateUser(User user) {
-        String error = findValidationViolations(user);
-        if (error != null) {
-            log.error("Ошибка валидации: {}", error);
-            throw new ValidationException(error);
-        }
-    }
-
-    private String findValidationViolations(User user) {
-        if (user == null) {
-            return "Объект не может быть null";
-        }
-        if (user.getEmail() == null || user.getEmail().isBlank()) {
-            return "Не передана почта";
-        }
-        if (!user.getEmail().contains("@")) {
-            return "Почта должна содержать символ \"@\"";
-        }
-        if (user.getLogin() == null) {
-            return "Не указан логин";
-        }
-        if (user.getLogin().contains(" ")) {
-            return "Логин не может содержать пробелы";
-        }
-        if (user.getBirthday() == null) {
-            return "Не указана дата рождения";
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            return "Дата рождения не может быть указана в будущем";
-        }
-        return null;
     }
 
     private long getNextId() {

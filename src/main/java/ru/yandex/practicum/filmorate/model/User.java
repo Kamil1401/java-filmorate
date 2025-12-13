@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,10 +12,21 @@ import java.util.Set;
 @Builder
 public class User {
     private Long id;
+
+    @NotBlank(message = "Email обязателен")
+    @Email(message = "Email некорректный")
     private String email;
+
+    @NotBlank(message = "Логин обязателен")
+    @Pattern(regexp = "\\S+", message = "Логин не может содержать пробелы")
     private String login;
+
     private String name;
+
+    @NotNull(message = "Дата рождения обязательна")
+    @PastOrPresent(message = "Дата рождения не может быть в будущем")
     private LocalDate birthday;
+
     private Set<Long> friends;
 
     @Override

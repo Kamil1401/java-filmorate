@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FriendAlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -13,13 +15,41 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
 
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
+
+    public List<User> getListOfAllUsers() {
+        return userStorage.getAllUsers();
     }
 
+    public User getUserOrThrow(Long userId) {
+        return userStorage.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+    }
+
+    public User create(User user) {
+        log.info("Получен запрос на создание пользователя");
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+        if (user.getFriends() == null) {
+            user.setFriends(new HashSet<>());
+        }
+        return userStorage.save(user);
+    }
+
+    public User update(User newUser) {
+        log.info("Получен запрос на обновление данных пользователя");
+        getUserOrThrow(newUser.getId());
+        if (newUser.getName() == null || newUser.getName().isBlank()) {
+            newUser.setName(newUser.getLogin());
+        }
+
+        return newUser;
+    }
 
     public void addFriend(Long userId, Long friendId) {
         if (userId == null || friendId == null) {
@@ -28,13 +58,10 @@ public class UserService {
         if (userId.equals(friendId)) {
             throw new ValidationException("Нельзя добавить в друзья самого себя");
         }
-        User user1 = userStorage.getUser(userId);
-        User user2 = userStorage.getUser(friendId);
+        User user1 = getUserOrThrow(userId);
+        User user2 = getUserOrThrow(friendId);
 
-        if (user1 == null || user2 == null) {
-            throw new NotFoundException("Пользователь не найден");
-        }
-        if (user1.getFriends().contains(user2.getId()) || user2.getFriends().contains(user1.getId())) {
+        if (user1.getFriends().contains(friendId) || user2.getFriends().contains(userId)) {
             throw new FriendAlreadyExistsException("Пользователи уже являются друзьями");
         }
         user1.getFriends().add(user2.getId());
@@ -48,12 +75,9 @@ public class UserService {
         if (userId.equals(friendId)) {
             throw new ValidationException("Нельзя удалить самого себя у себя из друзей");
         }
-        User user1 = userStorage.getUser(userId);
-        User user2 = userStorage.getUser(friendId);
+        User user1 = getUserOrThrow(userId);
+        User user2 = getUserOrThrow(friendId);
 
-        if (user1 == null || user2 == null) {
-            throw new NotFoundException("Пользователь не найден");
-        }
         user1.getFriends().remove(user2.getId());
         user2.getFriends().remove(user1.getId());
     }
@@ -65,17 +89,14 @@ public class UserService {
         if (userId.equals(anotherUserId)) {
             throw new ValidationException("Нельзя найти общих друзей с самим собой");
         }
-        User user1 = userStorage.getUser(userId);
-        User user2 = userStorage.getUser(anotherUserId);
+        User user1 = getUserOrThrow(userId);
+        User user2 = getUserOrThrow(anotherUserId);
 
-        if (user1 == null || user2 == null) {
-            throw new NotFoundException("Пользователь не найден");
-        }
         Set<Long> mutual = new HashSet<>(user1.getFriends());
         mutual.retainAll(user2.getFriends());
 
         return mutual.stream()
-                .map(userStorage::getUser)
+                .map(this::getUserOrThrow)
                 .collect(Collectors.toList());
     }
 }
