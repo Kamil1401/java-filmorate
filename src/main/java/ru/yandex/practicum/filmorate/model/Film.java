@@ -14,7 +14,7 @@ public class Film {
     private Long id;
 
     @NotBlank(message = "Название фильма обязательно")
-    private String name;
+    private String title;
 
     @NotBlank(message = "Описание обязательно")
     @Size(max = 200, message = "Максимальная длина описания — 200 символов")
@@ -28,6 +28,8 @@ public class Film {
     private int duration;
 
     private Set<Long> likes;
+    private String genre;
+    private String rating;
 
 
     @Override
@@ -38,8 +40,8 @@ public class Film {
         if (object == null || getClass() != object.getClass()) {
             return false;
         }
-        Film otherUser = (Film) object;
-        return Objects.equals(id, otherUser.id);
+        Film otherFilm = (Film) object;
+        return Objects.equals(id, otherFilm.id);
     }
 
     @Override

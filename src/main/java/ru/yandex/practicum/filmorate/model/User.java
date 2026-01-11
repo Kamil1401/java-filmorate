@@ -29,6 +29,7 @@ public class User {
 
     private Set<Long> friends;
 
+
     @Override
     public boolean equals(Object object) {
         if (this == object) {

@@ -60,7 +60,7 @@ public class FilmService {
         Film film = getFilmOrThrow(filmId);
         userService.getUserOrThrow(userId);
         if (film.getLikes().contains(userId)) {
-            throw new ValidationException("Вы уже поставили лайк фильму " + '\"' + film.getName() + '\"');
+            throw new ValidationException("Вы уже поставили лайк фильму " + '\"' + film.getTitle() + '\"');
         }
         film.getLikes().add(userId);
     }

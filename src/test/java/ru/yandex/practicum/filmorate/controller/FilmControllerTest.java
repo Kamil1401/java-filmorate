@@ -27,7 +27,7 @@ class FilmControllerTest {
     @Test
     public void getAllFilms_getListOfFilms() {
         Film testFilm = Film.builder()
-                .name("Иллюзия обмана")
+                .title("Иллюзия обмана")
                 .description("Команда лучших иллюзионистов мира проворачивает дерзкие ограбления " +
                         "прямо во время своих шоу, играя в кошки-мышки с агентами ФБР.")
                 .releaseDate(LocalDate.of(2013, 6, 12))
@@ -38,13 +38,13 @@ class FilmControllerTest {
         List<Film> films = filmController.getAllFilms();
 
         assertEquals(1, films.size());
-        assertEquals("Иллюзия обмана", films.getFirst().getName());
+        assertEquals("Иллюзия обмана", films.getFirst().getTitle());
     }
 
     @Test
     public void create_addFilmObject_theReleaseWasAfterTheSetDate() {
         Film testFilm = Film.builder()
-                .name("Иллюзия обмана")
+                .title("Иллюзия обмана")
                 .description("Команда лучших иллюзионистов мира проворачивает дерзкие ограбления " +
                         "прямо во время своих шоу, играя в кошки-мышки с агентами ФБР.")
                 .releaseDate(LocalDate.of(2013, 6, 12))
