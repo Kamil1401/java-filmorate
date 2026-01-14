@@ -26,9 +26,7 @@ public class DatabaseLikesDAO implements LikesDAO {
                                 .id(rs.getLong("id"))
                                 .filmId(rs.getLong("film_id"))
                                 .userId(rs.getLong("user_id"))
-                                .build()
-
-                , filmId);
+                                .build(), filmId);
     }
 
     @Override
