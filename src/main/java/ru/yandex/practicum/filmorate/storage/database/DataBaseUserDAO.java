@@ -46,9 +46,8 @@ public class DataBaseUserDAO implements UserDAO {
                                         .birthday(rs.getDate("birth_date").toLocalDate())
                                         .login(rs.getString("login"))
                                         .name(rs.getString("name"))
-                                        .build()
-                        , userId)
-                .stream().findFirst();
+                                        .build(), userId)
+                                        .stream().findFirst();
     }
 
     @Override
