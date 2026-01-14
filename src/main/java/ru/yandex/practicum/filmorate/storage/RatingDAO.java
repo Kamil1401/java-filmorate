@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RatingDAO {
+
     List<Rating> getAllRatings();
+
     Optional<Rating> findById(Long ratingId);
+
 }
