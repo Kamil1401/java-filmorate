@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.storage.GenresDAO;
 
 import java.util.List;
 import java.util.Optional;
+
 @Repository
 public class DatabaseGenreDAO implements GenresDAO {
     private final JdbcTemplate jdbcTemplate;
@@ -28,7 +29,7 @@ public class DatabaseGenreDAO implements GenresDAO {
 
     @Override
     public Optional<Genre> findById(Long genreId) {
-        return jdbcTemplate.query("select * from genres where ID=?",(e,i)-> Genre.builder()
+        return jdbcTemplate.query("select * from genres where ID=?",(e,i) -> Genre.builder()
                     .id(e.getLong("id"))
                     .name(e.getString("name"))
                     .build(),genreId).stream().findFirst();
