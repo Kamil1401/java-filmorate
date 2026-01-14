@@ -80,7 +80,7 @@ public class UserService {
         User user1 = getUserOrThrow(userId);
         User user2 = getUserOrThrow(friendId);
         Boolean deleted = friendshipDAO.deleteFriendShip(user1.getId(), friendId);
-        if (!deleted ) {
+        if (!deleted) {
             log.warn("Пользователи не друзья");
         }
     }
