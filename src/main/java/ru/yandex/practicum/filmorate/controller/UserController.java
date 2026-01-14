@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
@@ -40,11 +39,7 @@ public class UserController {
         if (userId == null) {
             throw new ValidationException("ID пользователя не передан");
         }
-        User user = userService.getUserOrThrow(userId);
-
-        return user.getFriends().stream()
-                .map(userService::getUserOrThrow)
-                .collect(Collectors.toList());
+        return userService.getUserFriends(userId);
     }
 
     @PostMapping

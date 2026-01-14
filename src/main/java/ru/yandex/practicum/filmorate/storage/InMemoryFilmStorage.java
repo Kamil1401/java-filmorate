@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-public class InMemoryFilmStorage implements FilmStorage {
+public class InMemoryFilmStorage implements FilmDAO {
     private final Map<Long, Film> films = new HashMap<>();
 
     @Override
@@ -39,7 +39,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public List<Film> getPopularFilms(int count) {
         return films.values().stream()
-                .sorted(Comparator.comparing((Film film) -> film.getLikes().size()).reversed())
+//                .sorted(Comparator.comparing((Film film) -> film.getLikes().size()).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
     }

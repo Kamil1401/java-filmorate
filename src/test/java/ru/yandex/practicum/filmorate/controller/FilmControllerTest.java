@@ -7,6 +7,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFriendshipDAO;
+import ru.yandex.practicum.filmorate.storage.InMemoryLikesDAO;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
@@ -20,14 +22,15 @@ class FilmControllerTest {
 
     @BeforeEach
     public void beforeEach() {
-        filmController = new FilmController(new FilmService(new InMemoryFilmStorage(),
-                new UserService(new InMemoryUserStorage())));
+        filmController = new FilmController(
+                new FilmService(new InMemoryFilmStorage(),
+                new UserService(new InMemoryUserStorage(),new InMemoryFriendshipDAO()),new InMemoryLikesDAO()));
     }
 
     @Test
     public void getAllFilms_getListOfFilms() {
         Film testFilm = Film.builder()
-                .title("Иллюзия обмана")
+                .name("Иллюзия обмана")
                 .description("Команда лучших иллюзионистов мира проворачивает дерзкие ограбления " +
                         "прямо во время своих шоу, играя в кошки-мышки с агентами ФБР.")
                 .releaseDate(LocalDate.of(2013, 6, 12))
@@ -38,13 +41,13 @@ class FilmControllerTest {
         List<Film> films = filmController.getAllFilms();
 
         assertEquals(1, films.size());
-        assertEquals("Иллюзия обмана", films.getFirst().getTitle());
+        assertEquals("Иллюзия обмана", films.getFirst().getName());
     }
 
     @Test
     public void create_addFilmObject_theReleaseWasAfterTheSetDate() {
         Film testFilm = Film.builder()
-                .title("Иллюзия обмана")
+                .name("Иллюзия обмана")
                 .description("Команда лучших иллюзионистов мира проворачивает дерзкие ограбления " +
                         "прямо во время своих шоу, играя в кошки-мышки с агентами ФБР.")
                 .releaseDate(LocalDate.of(2013, 6, 12))

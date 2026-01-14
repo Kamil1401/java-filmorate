@@ -12,24 +12,18 @@ import java.util.Set;
 @Builder
 public class Film {
     private Long id;
-
     @NotBlank(message = "Название фильма обязательно")
-    private String title;
-
+    private String name;
     @NotBlank(message = "Описание обязательно")
     @Size(max = 200, message = "Максимальная длина описания — 200 символов")
     private String description;
-
     @NotNull(message = "Дата релиза обязательна")
     @PastOrPresent(message = "Дата релиза не может быть в будущем")
     private LocalDate releaseDate;
-
     @Positive(message = "Продолжительность фильма должна быть положительной")
     private int duration;
-
-    private Set<Long> likes;
-    private String genre;
-    private String rating;
+    private Set<GenreDTO> genres;
+    private Rating mpa;
 
 
     @Override

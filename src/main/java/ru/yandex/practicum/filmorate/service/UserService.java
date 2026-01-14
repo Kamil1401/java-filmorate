@@ -1,13 +1,16 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FriendAlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.FriendshipDAO;
+import ru.yandex.practicum.filmorate.storage.UserDAO;
 
 import java.util.HashSet;
 import java.util.List;
@@ -18,7 +21,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
-    private final UserStorage userStorage;
+    @Qualifier("dataBaseUserDAO")
+    private final UserDAO userStorage;
+    @Qualifier("databaseFriendshipDAO")
+    private final FriendshipDAO friendshipDAO;
 
 
     public List<User> getListOfAllUsers() {
@@ -35,9 +41,6 @@ public class UserService {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        if (user.getFriends() == null) {
-            user.setFriends(new HashSet<>());
-        }
         return userStorage.save(user);
     }
 
@@ -47,7 +50,6 @@ public class UserService {
         if (newUser.getName() == null || newUser.getName().isBlank()) {
             newUser.setName(newUser.getLogin());
         }
-
         return newUser;
     }
 
@@ -60,12 +62,12 @@ public class UserService {
         }
         User user1 = getUserOrThrow(userId);
         User user2 = getUserOrThrow(friendId);
-
-        if (user1.getFriends().contains(friendId) || user2.getFriends().contains(userId)) {
+        List<Long> userFriends = getUserFriends(user1.getId()).stream().map(User::getId).toList();
+        List<Long> otherUserFriends = getUserFriends(user2.getId()).stream().map(User::getId).toList();
+        if (userFriends.contains(friendId) || otherUserFriends.contains(userId)) {
             throw new FriendAlreadyExistsException("Пользователи уже являются друзьями");
         }
-        user1.getFriends().add(user2.getId());
-        user2.getFriends().add(user1.getId());
+        friendshipDAO.insertFriendShip(user1.getId(), user2.getId());
     }
 
     public void deleteFriend(Long userId, Long friendId) {
@@ -77,9 +79,10 @@ public class UserService {
         }
         User user1 = getUserOrThrow(userId);
         User user2 = getUserOrThrow(friendId);
-
-        user1.getFriends().remove(user2.getId());
-        user2.getFriends().remove(user1.getId());
+        Boolean deleted = friendshipDAO.deleteFriendShip(user1.getId(), friendId);
+        if (!deleted ) {
+            log.warn("Пользователи не друзья");
+        }
     }
 
     public List<User> getMutualFriends(Long userId, Long anotherUserId) {
@@ -91,11 +94,20 @@ public class UserService {
         }
         User user1 = getUserOrThrow(userId);
         User user2 = getUserOrThrow(anotherUserId);
-
-        Set<Long> mutual = new HashSet<>(user1.getFriends());
-        mutual.retainAll(user2.getFriends());
+        List<Long> firstUserFriends = friendshipDAO.getAllFriends(user1.getId());
+        List<Long> secondUserFriends = friendshipDAO.getAllFriends(user2.getId());
+        Set<Long> mutual = new HashSet<>(firstUserFriends);
+        mutual.retainAll(secondUserFriends);
 
         return mutual.stream()
+                .map(this::getUserOrThrow)
+                .collect(Collectors.toList());
+    }
+
+    public List<User> getUserFriends(@Positive Long userId) {
+        getUserOrThrow(userId);
+        return friendshipDAO.getAllFriends(userId)
+                .stream()
                 .map(this::getUserOrThrow)
                 .collect(Collectors.toList());
     }

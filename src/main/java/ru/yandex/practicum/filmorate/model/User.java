@@ -6,7 +6,6 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.Objects;
-import java.util.Set;
 
 @Data
 @Builder
@@ -27,7 +26,6 @@ public class User {
     @PastOrPresent(message = "Дата рождения не может быть в будущем")
     private LocalDate birthday;
 
-    private Set<Long> friends;
 
 
     @Override

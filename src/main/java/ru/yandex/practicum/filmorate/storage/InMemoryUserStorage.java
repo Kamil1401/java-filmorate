@@ -8,7 +8,7 @@ import java.util.*;
 
 @Component
 @Slf4j
-public class InMemoryUserStorage implements UserStorage {
+public class InMemoryUserStorage implements UserDAO {
     private final Map<Long, User> users = new HashMap<>();
 
     @Override
@@ -29,11 +29,7 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    @Override
-    public User update(User newUser) {
-        users.put(newUser.getId(), newUser);
-        return newUser;
-    }
+
 
     private long getNextId() {
         long currentMaxId = users.keySet().stream()
