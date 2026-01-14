@@ -84,8 +84,8 @@ public class DatabaseFilmDao implements FilmDAO {
                        G2.ID as GENRE_ID,
                        G2.NAME as GENRE_NAME
                 from FILMS F
-                left join AGE_RATING AR on AR.ID = f.AGE_RATING_ID 
-                left join FILM_GENRES FG on FG.FILM_ID = f.ID 
+                left join AGE_RATING AR on AR.ID = f.AGE_RATING_ID
+                left join FILM_GENRES FG on FG.FILM_ID = f.ID
                 left join GENRES G2 on FG.GENRE_ID = G2.ID
                 where F.ID=?
                 """, LIST_RESULT_SET_EXTRACTOR, filmId)).stream().findFirst();
