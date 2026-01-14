@@ -6,8 +6,8 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.GenreDTO;
-import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.FilmDAO;
 
 import java.sql.SQLException;
@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
-public class DatabaseFilmDao implements FilmDAO {
+public class FilmDatabaseDao implements FilmDAO {
     private final JdbcTemplate jdbcTemplate;
     public static final ResultSetExtractor<List<Film>> LIST_RESULT_SET_EXTRACTOR = (rs) -> {
         Map<Long, Film> map = new HashMap<>();
@@ -36,13 +36,14 @@ public class DatabaseFilmDao implements FilmDAO {
                 }
             });
             if (rs.getObject("GENRE_ID") != null) {
-                GenreDTO genreDTO = new GenreDTO();
-                genreDTO.setId(rs.getLong("GENRE_ID"));
-                genreDTO.setName(rs.getString("GENRE_NAME"));
-                film.getGenres().add(genreDTO);
+                Genre genre = Genre.builder()
+                        .id(rs.getLong("GENRE_ID"))
+                        .name(rs.getString("GENRE_NAME"))
+                        .build();
+                film.getGenres().add(genre);
             }
             if (rs.getObject("RATING_ID") != null) {
-                film.setMpa(Rating.builder()
+                film.setMpa(MpaRating.builder()
                         .id(rs.getLong("RATING_ID"))
                         .name(rs.getString("RATING_NAME"))
                         .build());
@@ -51,13 +52,13 @@ public class DatabaseFilmDao implements FilmDAO {
 
         return map.values().stream().peek(film -> film.setGenres(
                 film.getGenres().stream()
-                        .sorted(Comparator.comparing(GenreDTO::getId))
+                        .sorted(Comparator.comparing(Genre::getId))
                         .collect(Collectors.toCollection(LinkedHashSet::new))
         )).toList();
     };
 
     @Autowired
-    public DatabaseFilmDao(JdbcTemplate jdbcTemplate) {
+    public FilmDatabaseDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

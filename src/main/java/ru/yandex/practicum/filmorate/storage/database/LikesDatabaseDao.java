@@ -11,11 +11,11 @@ import java.util.HashMap;
 import java.util.List;
 
 @Repository
-public class DatabaseLikesDAO implements LikesDAO {
+public class LikesDatabaseDao implements LikesDAO {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public DatabaseLikesDAO(JdbcTemplate jdbcTemplate) {
+    public LikesDatabaseDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

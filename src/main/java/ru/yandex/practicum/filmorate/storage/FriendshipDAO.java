@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface FriendshipDAO {
 
-    void insertFriendShip(Long id, Long id1);
+    void insertFriendship(Long id, Long id1);
 
-    Boolean deleteFriendShip(Long id, Long friendId);
+    Boolean deleteFriendship(Long id, Long friendId);
 
     List<Long> getAllFriends(@Positive Long userId);
 

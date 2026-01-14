@@ -5,8 +5,8 @@ import ru.yandex.practicum.filmorate.model.Like;
 import java.util.*;
 
 public class InMemoryLikesDAO implements LikesDAO {
-    long id = 0;
-    List<Like> likes = new ArrayList<>();
+    private long id = 0;
+    private final List<Like> likes = new ArrayList<>();
 
     @Override
     public List<Like> getAllLikes(Long filmId) {

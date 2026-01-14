@@ -10,17 +10,17 @@ import java.util.HashMap;
 import java.util.List;
 
 @Repository
-public class DatabaseFriendshipDAO implements FriendshipDAO {
+public class FriendshipDatabaseDao implements FriendshipDAO {
 
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public DatabaseFriendshipDAO(JdbcTemplate jdbcTemplate) {
+    public FriendshipDatabaseDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
-    public void insertFriendShip(Long userId, Long friendId) {
+    public void insertFriendship(Long userId, Long friendId) {
         SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
                 .usingGeneratedKeyColumns("id")
                 .withTableName("friendship");
@@ -32,7 +32,7 @@ public class DatabaseFriendshipDAO implements FriendshipDAO {
     }
 
     @Override
-    public Boolean deleteFriendShip(Long userId, Long friendId) {
+    public Boolean deleteFriendship(Long userId, Long friendId) {
         return jdbcTemplate.update("delete from  FRIENDSHIP " +
                         " where USER_ID = ? and FRIEND_ID = ?",
                 userId, friendId) > 0;

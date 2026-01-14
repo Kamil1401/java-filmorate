@@ -22,8 +22,8 @@ public class Film {
     private LocalDate releaseDate;
     @Positive(message = "Продолжительность фильма должна быть положительной")
     private int duration;
-    private Set<GenreDTO> genres;
-    private Rating mpa;
+    private Set<Genre> genres;
+    private MpaRating mpa;
 
 
     @Override

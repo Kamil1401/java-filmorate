@@ -21,9 +21,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
-    @Qualifier("dataBaseUserDAO")
+    @Qualifier("userDatabaseDao")
     private final UserDAO userStorage;
-    @Qualifier("databaseFriendshipDAO")
+    @Qualifier("friendshipDatabaseDao")
     private final FriendshipDAO friendshipDAO;
 
 
@@ -67,7 +67,7 @@ public class UserService {
         if (userFriends.contains(friendId) || otherUserFriends.contains(userId)) {
             throw new FriendAlreadyExistsException("Пользователи уже являются друзьями");
         }
-        friendshipDAO.insertFriendShip(user1.getId(), user2.getId());
+        friendshipDAO.insertFriendship(user1.getId(), user2.getId());
     }
 
     public void deleteFriend(Long userId, Long friendId) {
@@ -79,7 +79,7 @@ public class UserService {
         }
         User user1 = getUserOrThrow(userId);
         User user2 = getUserOrThrow(friendId);
-        Boolean deleted = friendshipDAO.deleteFriendShip(user1.getId(), friendId);
+        Boolean deleted = friendshipDAO.deleteFriendship(user1.getId(), friendId);
         if (!deleted) {
             log.warn("Пользователи не друзья");
         }

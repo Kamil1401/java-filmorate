@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.GenreDTO;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.storage.FilmDAO;
 import ru.yandex.practicum.filmorate.storage.LikesDAO;
@@ -22,12 +22,12 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmService {
-    @Qualifier("databaseFilmDao")
+    @Qualifier("filmDatabaseDao")
     private final FilmDAO filmStorage;
     private final UserService userService;
-    @Qualifier("databaseLikesDAO")
+    @Qualifier("likesDatabaseDao")
     private final LikesDAO likesDAO;
-    private final RatingService ratingService;
+    private final MpaRatingService mpaRatingService;
     private final GenreService genreService;
 
 
@@ -54,11 +54,11 @@ public class FilmService {
         } else {
             film.setGenres(new HashSet<>(film.getGenres()));
             film.getGenres().stream()
-                    .map(GenreDTO::getId)
+                    .map(Genre::getId)
                     .forEach(genreService::getGenreById);
         }
         if (film.getMpa() != null) {
-            ratingService.getRatingById(film.getMpa().getId());
+            mpaRatingService.getRatingById(film.getMpa().getId());
         }
 
         return filmStorage.save(film);

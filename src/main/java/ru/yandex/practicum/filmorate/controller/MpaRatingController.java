@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.filmorate.model.Rating;
-import ru.yandex.practicum.filmorate.service.RatingService;
+import ru.yandex.practicum.filmorate.model.MpaRating;
+import ru.yandex.practicum.filmorate.service.MpaRatingService;
 
 import java.util.List;
 
@@ -16,17 +16,17 @@ import java.util.List;
 @RequestMapping("/mpa")
 @Slf4j
 @RequiredArgsConstructor
-public class RatingController {
-    private final RatingService ratingService;
+public class MpaRatingController {
+    private final MpaRatingService ratingService;
 
 
     @GetMapping
-    public List<Rating> getAllRatings() {
+    public List<MpaRating> getAllRatings() {
         return ratingService.getAllRatings();
     }
 
     @GetMapping("/{id}")
-    public Rating getRatingById(@PathVariable("id") @Positive Long ratingId) {
+    public MpaRating getRatingById(@PathVariable("id") @Positive Long ratingId) {
         return ratingService.getRatingById(ratingId);
     }
 }

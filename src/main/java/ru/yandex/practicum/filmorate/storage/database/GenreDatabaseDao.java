@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class DatabaseGenreDAO implements GenresDAO {
+public class GenreDatabaseDao implements GenresDAO {
     private final JdbcTemplate jdbcTemplate;
 
 
     @Autowired
-    public DatabaseGenreDAO(JdbcTemplate jdbcTemplate) {
+    public GenreDatabaseDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

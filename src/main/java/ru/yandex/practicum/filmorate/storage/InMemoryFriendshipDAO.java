@@ -7,7 +7,7 @@ public class InMemoryFriendshipDAO implements FriendshipDAO {
     HashMap<Long, Set<Long>> map = new HashMap<>();
 
     @Override
-    public void insertFriendShip(Long id, Long id1) {
+    public void insertFriendship(Long id, Long id1) {
         Set<Long> longs = map.get(id);
         if (longs == null) {
             longs = new HashSet<>();
@@ -18,7 +18,7 @@ public class InMemoryFriendshipDAO implements FriendshipDAO {
     }
 
     @Override
-    public Boolean deleteFriendShip(Long id, Long friendId) {
+    public Boolean deleteFriendship(Long id, Long friendId) {
         Set<Long> longs = map.get(id);
 
         if (longs == null) {

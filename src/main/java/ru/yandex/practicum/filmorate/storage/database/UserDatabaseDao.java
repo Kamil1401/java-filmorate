@@ -13,13 +13,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class DataBaseUserDAO implements UserDAO {
+public class UserDatabaseDao implements UserDAO {
 
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
 
-    public DataBaseUserDAO(JdbcTemplate jdbcTemplate) {
+    public UserDatabaseDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
