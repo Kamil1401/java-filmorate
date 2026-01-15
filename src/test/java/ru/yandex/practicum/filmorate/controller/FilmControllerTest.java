@@ -2,12 +2,19 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.GenreService;
+import ru.yandex.practicum.filmorate.service.MpaRatingService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFriendshipDAO;
+import ru.yandex.practicum.filmorate.storage.InMemoryLikesDAO;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.database.GenreDatabaseDao;
+import ru.yandex.practicum.filmorate.storage.database.MpaRatingsDatabaseDao;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,7 +28,9 @@ class FilmControllerTest {
     @BeforeEach
     public void beforeEach() {
         filmController = new FilmController(new FilmService(new InMemoryFilmStorage(),
-                new UserService(new InMemoryUserStorage())));
+                new UserService(new InMemoryUserStorage(), new InMemoryFriendshipDAO()), new InMemoryLikesDAO(),
+                new MpaRatingService(new MpaRatingsDatabaseDao(new JdbcTemplate())),
+                new GenreService(new GenreDatabaseDao(new JdbcTemplate()))));
     }
 
     @Test

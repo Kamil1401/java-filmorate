@@ -12,22 +12,18 @@ import java.util.Set;
 @Builder
 public class Film {
     private Long id;
-
     @NotBlank(message = "Название фильма обязательно")
     private String name;
-
     @NotBlank(message = "Описание обязательно")
     @Size(max = 200, message = "Максимальная длина описания — 200 символов")
     private String description;
-
     @NotNull(message = "Дата релиза обязательна")
     @PastOrPresent(message = "Дата релиза не может быть в будущем")
     private LocalDate releaseDate;
-
     @Positive(message = "Продолжительность фильма должна быть положительной")
     private int duration;
-
-    private Set<Long> likes;
+    private Set<Genre> genres;
+    private MpaRating mpa;
 
 
     @Override
@@ -38,8 +34,8 @@ public class Film {
         if (object == null || getClass() != object.getClass()) {
             return false;
         }
-        Film otherUser = (Film) object;
-        return Objects.equals(id, otherUser.id);
+        Film otherFilm = (Film) object;
+        return Objects.equals(id, otherFilm.id);
     }
 
     @Override
